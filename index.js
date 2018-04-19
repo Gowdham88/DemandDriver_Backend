@@ -2,31 +2,22 @@ var http = require('http');
 const admin = require('firebase-admin');
 const functions = require('firebase-functions');
 var request = require('request');
-var geodist = require('geodist')
+var geodist = require('geodist');
+var FCM = require('fcm-node');
+var gcm = require("node-gcm");
+
 
 
 // var API_KEY = "..."; // Your Firebase Cloud Messaging Server API key
 
-
- var lat ;
- var long;
- var UID;
- var address;
- var time;
- var date;
- // var token;
- var distance
-
- var driverUID;
- var driverphoneNumber;
- var driverToken;
- var driverLat;
- var driverLong;
+var requests;
+var driverToken;
+var User_Token;
 
 // //Integrating firebase
 
 
-var serviceAccount = require("/Users/paramesh/Dropbox/DemandDriver-NodeJS/propane-nomad-707-firebase-adminsdk-bhx9c-18d2b560d5.json");
+var serviceAccount = require("/Volumes/Drive E/iOS Project/DDBackEnd_NodeJS/propane-nomad-707-firebase-adminsdk-bhx9c-18d2b560d5.json");
 var refreshToken;
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
@@ -38,107 +29,29 @@ admin.initializeApp({
 var db = admin.firestore();
  console.log("connected to firestore");
 
-
- 
-
-
-// // // Google's Firebase Cloud Messaging (FCM)
-
-// var serverKey = 'AAAAWIq0QYs:APA91bHTABWxpp5S2nrbbvuYJdKE0UxZBkZSjstsCOKfK7gJDkBnrZM8YeCon8lsrA_GufGruCdCFenF33B3eWhBcFsu-ARLQqA8AeO-3tj9su772SuEVCRA4zjLN3Qx6TSXmU32qLmn';
-// var fcm = new FCM(serverKey);
-
-var registerToken = 'APA91bHTABWxpp5S2nrbbvuYJdKE0UxZBkZSjstsCOKfK7gJDkBnrZM8YeCon8lsrA_GufGruCdCFenF33B3eWhBcFsu-ARLQqA8AeO-3tj9su772SuEVCRA4zjLN3Qx6TSXmU32qLmn';
-
-
-// function updateServerTimestamp(db) {
-//     // Create the object before updating it (racy on first run, oh well)
-//     db.collection('objects').doc('some-id').set({});
-
-//     // [START update_with_server_timestamp]
-//     // Get the `FieldValue` object
-//     var FieldValue = require('firebase-admin').firestore.FieldValue;
-
-//     // Create a document reference
-//     var docRef = db.collection('UsersBookingRequest').doc('some-id');
-
-//     // Update the timestamp field with the value from the server
-//     var updateTimestamp = docRef.update({
-//         timestamp: FieldValue.serverTimestamp()
-//     });
-//     // [END update_with_server_timestamp]
-
-//     return updateTimestamp.then(res => {
-//         console.log('Update: ', res);
-//     });
-// }
-
-// exports.UsersBookingRequestCreated = functions.firestore
-//     .document('UsersBookingRequest/{requestId}')
-//     .onCreate((snap, context) => {
-    
-//     const userBookingRequestData = snap.data();
-//     const userBookingRequestId = context.params.requestId;
-
-//     console.log(userBookingRequestId);
-    
-//     const data = {
-//     // Your data
+let sender = new gcm.Sender("AAAAWIq0QYs:APA91bH9NYEHN-qDICk5mGIptA0mg47jkj9Pllv8_cDq6r7uPurh814rz7VH1AmDtcQhQKsyFaV-Yzh0hgIN371wgc8jhtnaMIUslAXafpKjWyuUVmBxx3n0XzXT816S03LsiiWkVsDL");
 
 
 
-//     }
-//     console.log(userBookingRequestId);
-//     return admin.firestore().collection('DriversCurrentBookings').doc(userBookingRequestId).set(data);
-
-// });
-
-// exports.UsersBookingRequestCreated = functions.firestore
-//     .document('UsersBookingRequest/{requestId}')
-//     .onCreate((snap, context) => {
-    
-//     const userBookingRequestData = snap.data();
-//     const userBookingRequestId = context.params.requestId;
-
-    
-//     const data = {
-//     // Your data
-
-//                      lat: lat,
-//                      long: long,
-//                      UID: UID,
-//                      address: address,
-//                      date: date,
-//                      time: time
-// //                      // token: token
 
 
+// var biggest = citiesRef.where('population', '>', 2500000).orderBy('population').limit(2);
 
-//     }
-//     console.log(userBookingRequestId);
-//     return admin.firestore().collection('DriversCurrentBookings').doc(userBookingRequestId).set(data);
+// function requestID() {
 
-// });
-
-
-// func requestID() {
-
-//       var ref = db.ref("UsersBookingRequest").limitToLast(1);
+//       var ref = db.ref("Current_booking").limitToLast(1);
 //         ref.on("child_added", function(addsnapshot) {
-//             var dbref = db.ref("UsersBookingRequest");
-//             dbref.orderByChild("UsersBookingRequest").equalTo(addsnapshot.val().postid).once("value",function(extsnapshot) {
+//             var dbref = db.ref("Current_booking");
+//             dbref.orderByChild("Current_booking").equalTo(addsnapshot.val().postid).once("value",function(extsnapshot) {
 
 //       // var postmessagearray = []
 //       // var postimagearray   = []
 //       // var basketidarray    = []
 //       // var primaryid        = []
 //       // var position         =  0
-//             lat = doc.data().Currentlat;
-//             long = doc.data().Currentlong;
-//             UID = doc.data().UID;
-//             // token = doc.data().token;
-//             address = doc.data().address;
-//             date = doc.data().date;
-//             time = doc.data().time;
+//             requests = doc.data().Request;
+//             driverToken = doc.data().driverToken;
+           
 
 //         extsnapshot.forEach(function (snapshot) {
 
@@ -146,215 +59,85 @@ var registerToken = 'APA91bHTABWxpp5S2nrbbvuYJdKE0UxZBkZSjstsCOKfK7gJDkBnrZM8YeC
 //         // lat.push(snapshot.val().postmessage);
 //         // long.push(snapshot.val().postimage);
 //         // UID.push(snapshot.val().UID);
-//             console.log(lat);
-//             console.log(long);
-//             console.log(UID);
-//             // console.log(token);
-//             console.log(address);
-//             console.log(date);
-//             console.log(time);
+//             console.log(requests);
+//             console.log(driverToken);
+           
 //         }
 
-//     }
-//       });
+//      }
+
+//   });
 
 // }
 // requestID();
 
-function distance() {
-
-
-    var cityRef = db.collection('UsersBookingRequest').doc('oiwljZIt0bQKhF9p5cnlMopSual1');
-            var getDoc = cityRef.get()
-                 .then(doc => {
-                     if (!doc.exists) {
-                         console.log('No such document!');
-                     } else {
-                            console.log('Document data:', doc.data());
-                            lat = doc.data().Currentlat;
-                            long = doc.data().Currentlong;
-                            UID = doc.data().UID;
-                            // token = doc.data().token;
-                            address = doc.data().address;
-                            date = doc.data().date;
-                            time = doc.data().time;
-
-                            console.log(lat);
-                            console.log(long);
-                            console.log(UID);
-                            // console.log(token);
-                            console.log(address);
-                            console.log(date);
-                            console.log(time);
-                       
-
-         var cityRef = db.collection('DriverInActive').doc('oiwljZIt0bQKhF9p5cnlMopSual1');
-            var getDoc = cityRef.get()
-               .then(doc => {
-                     if (!doc.exists) {
-                         console.log('No such document!');
-                     } else {
-                            console.log('Document data:', doc.data());
-                            // driverLat = doc.data().Currentlat;
-                            // driverLong = doc.data().Currentlong;
-                            driverUID = doc.data().driverUID;
-                            driverToken = doc.data().driverToken;
-                            driverphoneNumber = doc.data().driverphoneNumber;
-                            // address = doc.data().address;
-                            // date = doc.data().date;
-                            // time = doc.data().time;
-
-                            // console.log(driverLat);
-                            // console.log(driverLong);
-                            console.log('driverphoneNumber::::', driverphoneNumber);
-                            console.log('driverUID::::',driverUID);
-                            console.log('driverToken::::', driverToken);
-                            // console.log(address);
-                            // console.log(date);
-                            // console.log(time);
-                      
 
 
 
-                       var dist = geodist({lat: lat, lon: long}, {lat: 33.7489, lon: -84.3881}, {exact: true, unit: 'km'})
-                       // geodist(address, osaka, {exact: true, unit: 'km'})  
-                       console.log('distancce in km', dist) 
+function approve() {
+	// body...
+
+// 	var query = db.collection('Current_booking').where('Request', '==', 'Approved').limit(1);
+
+// var observer = query.onSnapshot(querySnapshot => {
+//   console.log(`Received query snapshot of size ${querySnapshot.size}`);
+
+//   // console.log(doc.data());
+//   // ...
+// }, err => {
+//   console.log(`Encountered error: ${err}`);
+// });
+var citiesRef = db.collection('Current_booking');
+var allCities = citiesRef.get()
+    .then(snapshot => {
+      snapshot.forEach(doc => {
+        console.log(doc.id, '=>', doc.data());
+			requests = doc.data().Request;
+            driverToken = doc.data().driverToken;
+            User_Token = doc.data().User_Token;
+
+				 var query = db.collection('Current_booking').where('Request', '==', 'Approved').limit(1);
+
+			     var observer = query.onSnapshot(querySnapshot => {
+			     console.log(`Received query snapshot of size ${querySnapshot.size}`);
+
+			  // console.log(doc.data());
+			  let message = new gcm.Message({
+											    notification: {
+											        title: "Hello World! ",
+											        icon: "your_icon_name",
+											        body: "Here is a notification's body."
+											    },
+											});
+
+						sender.sendNoRetry(message, ["driverToken", "User_Token"], (err, response) => {
+						    if (err) console.error(err);
+						    else console.log(response);
+						});
+					  // ...
+					}, err => {
+					  console.log(`Encountered error: ${err}`);
+					});
+					console.log(requests);
+		            console.log(driverToken);
+		            console.log(User_Token);
 
 
-
-                         var data = {
-
-                              // driverLat:         driverLat,
-                              // driverLong:        driverLong,
-                              distance:          dist,
-                              driverUID:         driverUID,
-                              driverphoneNumber: driverphoneNumber,
-                              driverToken:       driverToken
-                              // UID: UID,
-                              // address: address,
-                              // date: date,
-                              // time: time
-                           // token: token
-
-                     
-                        };
-
-                    // Add a new document in collection "cities" with ID 'LA'
-            var setDoc = db.collection('DriverActive').doc(doc.data().driverUID).set(data);
-
-
-                }   
-            
-             })//DriverInactive
-           }
-
-        })//userbooking           
-        .catch(err => {
-             console.log('Error getting document', err);
+      		});
+    })
+    .catch(err => {
+      console.log('Error getting documents', err);
     });
+
+
+
+
 
 }
 
-distance();
- 
+approve();
 
 
-// function userRideRequest(){
-
-// var query = db.collection('UsersBookingRequest').where('state', '==', 'CA');
-
-// var observer = query.onSnapshot(querySnapshot => {
-//     console.log(`Received query snapshot of size ${querySnapshot.size}`);
-//     // ...
-// }, err => {
-//     console.log(`Encountered error: ${err}`);
-// });
-
-// }
-
-// userRideRequest();
-//
-
-
-/****************inserting userrequest to drivercurrentbooking*************/
-
-var citiesRef = db.collection('UsersBookingRequest');
-var allCities = citiesRef.get()
-    .then(snapshot => {
-        snapshot.forEach(doc => {
-            console.log(doc.id, '=>', doc.data());
-            var reqID = doc.data().UID;
-
-            var cityRef = db.collection('UsersBookingRequest').doc(reqID);
-            var getDoc = cityRef.get()
-                 .then(doc => {
-                     if (!doc.exists) {
-                         console.log('No such document!');
-                     } else {
-                            console.log('Document data:', doc.data());
-                            lat = doc.data().Currentlat;
-                            long = doc.data().Currentlong;
-                            UID = doc.data().UID;
-                            // token = doc.data().token;
-                            address = doc.data().address;
-                            date = doc.data().date;
-                            time = doc.data().time;
-
-                            console.log(lat);
-                            console.log(long);
-                            console.log(UID);
-                            // console.log(token);
-                            console.log(address);
-                            console.log(date);
-                            console.log(time);
-
-            var data = {
-
-                     lat: lat,
-                     long: long,
-                     UID: UID,
-                     address: address,
-                     date: date,
-                     time: time
-                     // token: token
-
-                     
-                        };
-
-                    // Add a new document in collection "cities" with ID 'LA'
-            var setDoc = db.collection('DriversCurrentBookings').doc(doc.data().UID).set(data);
-
-        }
-    })
-    .catch(err => {
-        console.log('Error getting document', err);
-    });
-
-        })
-    })
-    .catch(err => {
-        console.log('Error getting documents', err);
-    });
-
-
-
-
-
-
-var server = http.createServer(function(request, response) {
-
-    response.writeHead(200, {"Content-Type": "text/plain"});
-    response.end("Hello World!");
-
-});
-
-var port = process.env.PORT || 1337;
-server.listen(port);
-
-console.log("Server running at http://localhost:%d", port);
-
-
-var FCM = require('fcm-node')
     
     var serverKey = 'AAAAWIq0QYs:APA91bHTABWxpp5S2nrbbvuYJdKE0UxZBkZSjstsCOKfK7gJDkBnrZM8YeCon8lsrA_GufGruCdCFenF33B3eWhBcFsu-ARLQqA8AeO-3tj9su772SuEVCRA4zjLN3Qx6TSXmU32qLmn' //put the generated private key path here    
     
@@ -379,12 +162,21 @@ var FCM = require('fcm-node')
              
         }
 
-    }
+   }
 
-    fcm.send(message, function(err, response){
-        if (err) {
-            console.log("Something has gone wrong!")
-        } else {
-            console.log("Successfully sent with response: ", response)
-        }
-    })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
