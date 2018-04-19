@@ -12,12 +12,14 @@
         "start": "node index.js"
     },
     "dependencies": {
+        "@types/node-gcm": "^0.14.29",
         "fcm-node": "^1.2.1",
         "firebase-admin": "^5.11.0",
         "firebase-functions": "^0.9.1",
         "forever-monitor": "^1.7.1",
         "geodist": "^0.2.1",
         "http": "0.0.0",
+        "node-gcm": "^0.14.10",
         "npm": "^5.8.0"
     }
 }
