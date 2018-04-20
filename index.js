@@ -10,12 +10,16 @@ var gcm = require("node-gcm");
 
 // var API_KEY = "..."; // Your Firebase Cloud Messaging Server API key
 
-var requests;
-var driverToken;
-var User_Token;
+// var requests;
+// var driverToken;
+// var User_Token;
+// var Driver_Phone_number;
 
 // //Integrating firebase
 
+
+var serverKey = 'AIzaSyD82N473tFuYYXOJh4pNXOZluv3Rj_8QM0';
+var fcm = new FCM(serverKey);
 
 var serviceAccount = require("/Volumes/Drive E/iOS Project/DDBackEnd_NodeJS/propane-nomad-707-firebase-adminsdk-bhx9c-18d2b560d5.json");
 var refreshToken;
@@ -35,143 +39,107 @@ let sender = new gcm.Sender("AAAAWIq0QYs:APA91bH9NYEHN-qDICk5mGIptA0mg47jkj9Pllv
 
 
 
-// var biggest = citiesRef.where('population', '>', 2500000).orderBy('population').limit(2);
 
-// function requestID() {
 
-//       var ref = db.ref("Current_booking").limitToLast(1);
-//         ref.on("child_added", function(addsnapshot) {
-//             var dbref = db.ref("Current_booking");
-//             dbref.orderByChild("Current_booking").equalTo(addsnapshot.val().postid).once("value",function(extsnapshot) {
-
-//       // var postmessagearray = []
-//       // var postimagearray   = []
-//       // var basketidarray    = []
-//       // var primaryid        = []
-//       // var position         =  0
-//             requests = doc.data().Request;
-//             driverToken = doc.data().driverToken;
-           
-
-//         extsnapshot.forEach(function (snapshot) {
-
-//         // console.log(snapshot.val().postmessage);
-//         // lat.push(snapshot.val().postmessage);
-//         // long.push(snapshot.val().postimage);
-//         // UID.push(snapshot.val().UID);
-//             console.log(requests);
-//             console.log(driverToken);
-           
-//         }
-
-//      }
-
-//   });
-
-// }
-// requestID();
+	function Tokenretrive() {
 
 
 
 
-function approve() {
-	// body...
+   			 var query = db.collection('Current_booking').where('Request', '==', 'Approved');
 
-// 	var query = db.collection('Current_booking').where('Request', '==', 'Approved').limit(1);
+			var observer = query.onSnapshot(querySnapshot => {
+			  console.log(`Received query snapshot of size ${querySnapshot.size}`);
+			  querySnapshot.docChanges.forEach(snap  => {
 
-// var observer = query.onSnapshot(querySnapshot => {
-//   console.log(`Received query snapshot of size ${querySnapshot.size}`);
+			     		console.log(snap.doc.data().Request);
+			     		console.log(snap.doc.data().driverToken);
+			     		console.log(snap.doc.data().User_Token);
+			     		console.log(snap.doc.data().Driver_Phone_number);
+			     		console.log(snap.doc.data().Driver_name);
+			     		console.log(snap.doc.data().User_name);
 
-//   // console.log(doc.data());
-//   // ...
-// }, err => {
-//   console.log(`Encountered error: ${err}`);
-// });
-var citiesRef = db.collection('Current_booking');
-var allCities = citiesRef.get()
-    .then(snapshot => {
-      snapshot.forEach(doc => {
-        console.log(doc.id, '=>', doc.data());
-			requests = doc.data().Request;
-            driverToken = doc.data().driverToken;
-            User_Token = doc.data().User_Token;
+			     		var Request = snap.doc.data().Request
+						var driverToken = snap.doc.data().driverToken
+						var User_Token = snap.doc.data().User_Token
+						var Driver_Phone_number = snap.doc.data().Driver_Phone_number
+						var Driver_name = snap.doc.data().Driver_name
+						var User_name = snap.doc.data().User_name
 
-				 var query = db.collection('Current_booking').where('Request', '==', 'Approved').limit(1);
+			     		console.log(Request);
+			     		console.log(driverToken);
+			     		console.log(User_Token);
+			     		console.log(Driver_Phone_number);
+			     		console.log(Driver_name);
+			     		console.log(User_name);
 
-			     var observer = query.onSnapshot(querySnapshot => {
-			     console.log(`Received query snapshot of size ${querySnapshot.size}`);
+						var Drivertext = "Ride has been booked successfully with ";
+						var Drivername = User_name;
+						var Driverbody = Drivertext + Drivername;
 
-			  // console.log(doc.data());
-			  let message = new gcm.Message({
-											    notification: {
-											        title: "Hello World! ",
-											        icon: "your_icon_name",
-											        body: "Here is a notification's body."
-											    },
-											});
+						console.log(Driverbody);
 
-						sender.sendNoRetry(message, ["driverToken", "User_Token"], (err, response) => {
-						    if (err) console.error(err);
-						    else console.log(response);
-						});
-					  // ...
-					}, err => {
-					  console.log(`Encountered error: ${err}`);
-					});
-					console.log(requests);
-		            console.log(driverToken);
-		            console.log(User_Token);
+						var Username = Driver_name;
+						var DriverPhone = Driver_Phone_number;
+						var midtext = ":";
+						var Usertext = "has been assigned for your ride";
+						var userBody = Username + midtext + " " + DriverPhone + " " + Usertext;
 
+						console.log(userBody);
 
-      		});
-    })
-    .catch(err => {
-      console.log('Error getting documents', err);
-    });
+						Pushnotification(driverToken,"Demand Driver", Driverbody);
+			     		Pushnotification(User_Token,"Demand Driver", userBody);
 
 
 
-
+			     })
+			  
+			}, err => {
+			  console.log(`Encountered error: ${err}`);
+			});
 
 }
 
-approve();
+Tokenretrive();
 
 
-    
-    var serverKey = 'AAAAWIq0QYs:APA91bHTABWxpp5S2nrbbvuYJdKE0UxZBkZSjstsCOKfK7gJDkBnrZM8YeCon8lsrA_GufGruCdCFenF33B3eWhBcFsu-ARLQqA8AeO-3tj9su772SuEVCRA4zjLN3Qx6TSXmU32qLmn' //put the generated private key path here    
-    
-    var fcm = new FCM(serverKey)
- 
+
+function Pushnotification(devicetoken,title,body) {
+
+    // console.log(dates)
+
     var message = { //this may vary according to the message type (single recipient, multicast, topic, et cetera)
-        to: 'ddeFFa4dBPlQ:APA91bF7hTjsSkk-l6fLaI939W0ISe2olO18OjCUZu4N9URr9QKW4xXBIyWyC1L9Vui1cawGkFaSV1M2yDG4ASJyeCtrwGyal0GmIgdciZeGVmNSUnvyddTLUPAxQlAsjpAHTJy4Lwqt', 
-        collapse_key: 'green',
-        
+        to: devicetoken,
+
+        priority: 'high',
+        content_available: true,
+
         notification: {
-            title: 'Title of your push notification', 
-            body: 'Body of your push notification' 
-            
+            title: title,
+            body: body,
+            sound : "default",
+            badge: "1"
         },
-        // data: {
-          
+
+        // data: {  //you can send only notification or only data(or include both)
+        //     my_key: dates,
+        //     my_another_key: 'my another value'
         // }
-        
-        data: {  //you can send only notification or only data(or include both)
-            my_key: 'eAVBmjTdMm8:APA91bG8n-ODPCUY6BjgE-KHZn-ULGEkMhjbKdhAkArQYEhj7QLanLDNOuIZRnwKCg5hdvItn8IoVGpe7Scxo3ehTgfMjls72QJsSZAtqF8FENOwXX-EMpQh4orLpdCietHu1xEjXol8',
-            my_another_key: 'ddeFFa4dBPlQ:APA91bF7hTjsSkk-l6fLaI939W0ISe2olO18OjCUZu4N9URr9QKW4xXBIyWyC1L9Vui1cawGkFaSV1M2yDG4ASJyeCtrwGyal0GmIgdciZeGVmNSUnvyddTLUPAxQlAsjpAHTJy4Lwqt'
-             
+
+
+    };
+
+    fcm.send(message, function(err, response){
+        if (err) {
+            console.log("Something has gone wrong!");
+        } else {
+            console.log("Successfully sent with response: ", response);
         }
+    });
 
-   }
+}
 
-
-
-
-
-
-
-
-
+    
 
 
 
