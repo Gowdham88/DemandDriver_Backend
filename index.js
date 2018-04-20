@@ -74,13 +74,13 @@ let sender = new gcm.Sender("AAAAWIq0QYs:APA91bH9NYEHN-qDICk5mGIptA0mg47jkj9Pllv
 			     		console.log(User_name);
 
 						var Drivertext = "Ride has been booked successfully with ";
-						var Drivername = User_name;
+						var Drivername = User_name; //user name  here
 						var Driverbody = Drivertext + Drivername;
 
 						console.log(Driverbody);
 
-						var Username = Driver_name;
-						var DriverPhone = Driver_Phone_number;
+						var Username = Driver_name; //driver name here
+						var DriverPhone = Driver_Phone_number; //Driver phone number here
 						var midtext = ":";
 						var Usertext = "has been assigned for your ride";
 						var userBody = Username + midtext + " " + DriverPhone + " " + Usertext;
