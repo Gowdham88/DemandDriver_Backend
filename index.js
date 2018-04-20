@@ -7,16 +7,7 @@ var FCM = require('fcm-node');
 var gcm = require("node-gcm");
 
 
-
-// var API_KEY = "..."; // Your Firebase Cloud Messaging Server API key
-
-// var requests;
-// var driverToken;
-// var User_Token;
-// var Driver_Phone_number;
-
 // //Integrating firebase
-
 
 var serverKey = 'AIzaSyD82N473tFuYYXOJh4pNXOZluv3Rj_8QM0';
 var fcm = new FCM(serverKey);
