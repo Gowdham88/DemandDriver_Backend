@@ -29,9 +29,6 @@ let sender = new gcm.Sender("AAAAWIq0QYs:APA91bH9NYEHN-qDICk5mGIptA0mg47jkj9Pllv
 
 	function Tokenretrive() {
 
-
-
-
    			 var query = db.collection('Current_booking').where('Request', '==', 'Approved');
 
 			var observer = query.onSnapshot(querySnapshot => {
@@ -75,7 +72,6 @@ let sender = new gcm.Sender("AAAAWIq0QYs:APA91bH9NYEHN-qDICk5mGIptA0mg47jkj9Pllv
 
 						Pushnotification(driverToken,"Demand Driver", Driverbody);
 			     		Pushnotification(User_Token,"Demand Driver", userBody);
-
 
 
 			     })
