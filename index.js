@@ -1,25 +1,16 @@
-var http = require('http');
-const admin = require('firebase-admin');
+var http        = require('http');
+const admin     = require('firebase-admin');
 const functions = require('firebase-functions');
-var request = require('request');
-var geodist = require('geodist');
-var FCM = require('fcm-node');
-var gcm = require("node-gcm");
+var request     = require('request');
+var geodist     = require('geodist');
+var FCM         = require('fcm-node');
+var gcm         = require("node-gcm");
 
-
-
-// var API_KEY = "..."; // Your Firebase Cloud Messaging Server API key
-
-// var requests;
-// var driverToken;
-// var User_Token;
-// var Driver_Phone_number;
 
 // //Integrating firebase
 
-
 var serverKey = 'AIzaSyD82N473tFuYYXOJh4pNXOZluv3Rj_8QM0';
-var fcm = new FCM(serverKey);
+var fcm       = new FCM(serverKey);
 
 var serviceAccount = require("/Volumes/Drive E/iOS Project/DDBackEnd_NodeJS/propane-nomad-707-firebase-adminsdk-bhx9c-18d2b560d5.json");
 var refreshToken;
@@ -30,21 +21,13 @@ admin.initializeApp({
 
 });
 
-var db = admin.firestore();
+ var db = admin.firestore();
  console.log("connected to firestore");
 
 let sender = new gcm.Sender("AAAAWIq0QYs:APA91bH9NYEHN-qDICk5mGIptA0mg47jkj9Pllv8_cDq6r7uPurh814rz7VH1AmDtcQhQKsyFaV-Yzh0hgIN371wgc8jhtnaMIUslAXafpKjWyuUVmBxx3n0XzXT816S03LsiiWkVsDL");
 
 
-
-
-
-
-
 	function Tokenretrive() {
-
-
-
 
    			 var query = db.collection('Current_booking').where('Request', '==', 'Approved');
 
@@ -59,12 +42,12 @@ let sender = new gcm.Sender("AAAAWIq0QYs:APA91bH9NYEHN-qDICk5mGIptA0mg47jkj9Pllv
 			     		console.log(snap.doc.data().Driver_name);
 			     		console.log(snap.doc.data().User_name);
 
-			     		var Request = snap.doc.data().Request
-						var driverToken = snap.doc.data().driverToken
-						var User_Token = snap.doc.data().User_Token
+			     		var Request             = snap.doc.data().Request
+						var driverToken         = snap.doc.data().driverToken
+						var User_Token          = snap.doc.data().User_Token
 						var Driver_Phone_number = snap.doc.data().Driver_Phone_number
-						var Driver_name = snap.doc.data().Driver_name
-						var User_name = snap.doc.data().User_name
+						var Driver_name         = snap.doc.data().Driver_name
+						var User_name           = snap.doc.data().User_name
 
 			     		console.log(Request);
 			     		console.log(driverToken);
@@ -74,22 +57,21 @@ let sender = new gcm.Sender("AAAAWIq0QYs:APA91bH9NYEHN-qDICk5mGIptA0mg47jkj9Pllv
 			     		console.log(User_name);
 
 						var Drivertext = "Ride has been booked successfully with ";
-						var Drivername = User_name;
+						var Drivername = User_name; //user name  here
 						var Driverbody = Drivertext + Drivername;
 
 						console.log(Driverbody);
 
-						var Username = Driver_name;
-						var DriverPhone = Driver_Phone_number;
-						var midtext = ":";
-						var Usertext = "has been assigned for your ride";
-						var userBody = Username + midtext + " " + DriverPhone + " " + Usertext;
+						var Username    = Driver_name; //driver name here
+						var DriverPhone = Driver_Phone_number; //Driver phone number here
+						var midtext     = ":";
+						var Usertext    = "has been assigned for your ride";
+						var userBody    = Username + midtext + " " + DriverPhone + " " + Usertext;
 
 						console.log(userBody);
 
 						Pushnotification(driverToken,"Demand Driver", Driverbody);
 			     		Pushnotification(User_Token,"Demand Driver", userBody);
-
 
 
 			     })
